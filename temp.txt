@@ -1,0 +1,24 @@
+classroom{
+    name,
+    subject,
+    room,
+    section,
+    students,
+    teacher
+
+}
+attendence{
+    qrcode,
+    listOfStudent[{student id,student name, status{P/A}, ip, country}.{}]
+}
+student{
+    student id,
+    student name,
+    email
+
+}
+teacher{
+    name,
+    email,
+   classroom
+}

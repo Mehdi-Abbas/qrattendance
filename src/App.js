@@ -1,25 +1,39 @@
-import logo from './logo.svg';
 import './App.css';
+import React from "react";
+import {
+  HashRouter as Router,
+  Switch,
+  Route,
+} from "react-router-dom";
+import UseWindowDimensions from './components/Screensize';
+import Welcome from './screens/Welcome';
+import Teacher from './screens/Teacher';
+import Student from './screens/Student';
+import { Provider, connect } from 'react-redux';
+import store from './Redux/Store/Store';
+// import Todos from './screens/todos';
 
-function App() {
+
+export default function App() {
+  const { height } = UseWindowDimensions();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <div style={{ display: 'flex', height: height, flexDirection: "column", alignItems: 'center' }}>
+        <Router>
+          <Switch>
+            <Route exact path="/">
+              <Welcome />
+            </Route>
+            <Route path="/teacher">
+              <Teacher />
+            </Route>
+            <Route path="/student">
+              <Student />
+            </Route>
+          </Switch>
+        </Router>
+      </div>
+    </Provider>
+
   );
 }
-
-export default App;
