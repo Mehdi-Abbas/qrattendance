@@ -139,7 +139,7 @@ const Home = () => {
                                 >Scan Code</Button>
                             </> : <>
                                 <QrReader
-                                    facingMode='user'
+                                    facingMode='environment'
                                     delay={300}
                                     style={{ width: camSize }}
                                     onError={handleErrorWebCam}
