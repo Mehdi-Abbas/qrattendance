@@ -1,14 +1,10 @@
 import { useState } from 'react'
-import { Link, Redirect, useRouteMatch } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-// import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
+
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -22,8 +18,7 @@ const theme = createTheme();
 
 const ForgetPassword = (props) => {
     
-    let { path } = useRouteMatch();
-    const [email, setEmail] = useState("")
+   
     const [isEmailSent, setEmailSent]=useState(false)
     const [loading, setLoad] = useState(false)
 
@@ -34,7 +29,7 @@ const ForgetPassword = (props) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         // eslint-disable-next-line no-console
-        setEmail(data.get('email').toUpperCase())
+        
         
         let em = data.get('email')
 
@@ -52,9 +47,9 @@ const ForgetPassword = (props) => {
             // Handle Errors here.
             var errorCode = error.code;
             var errorMessage = error.message;
-            if (errorCode == 'auth/invalid-email') {
+            if (errorCode === 'auth/invalid-email') {
               alert(errorMessage);
-            } else if (errorCode == 'auth/user-not-found') {
+            } else if (errorCode === 'auth/user-not-found') {
               alert(errorMessage);
             }
             console.log(error);

@@ -9,7 +9,7 @@ import UseWindowDimensions from './components/Screensize';
 import Welcome from './screens/Welcome';
 import Teacher from './screens/Teacher';
 import Student from './screens/Student';
-import { Provider, connect } from 'react-redux';
+import { Provider } from 'react-redux';
 import store from './Redux/Store/Store';
 // import Todos from './screens/todos';
 

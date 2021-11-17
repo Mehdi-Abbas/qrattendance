@@ -3,17 +3,13 @@ import TeacherLogin from './TeacherLogin';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { Link, Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {
-    HashRouter as Router,
-    Switch,
-    Route,
+    
     useRouteMatch,
 } from "react-router-dom";
-import Stream from './Stream'
 import People from './People';
-import Classwork from './Classwork';
 
 
 const Home = () => {
@@ -45,7 +41,7 @@ const Home = () => {
 
     const [user, setUser] = useState('');
     // const classes = useStyles();
-    let { path, url } = useRouteMatch();
+    let {  url } = useRouteMatch();
     console.log(url)
     const userState = () => {
         const userdata = localStorage.getItem('user');
@@ -53,10 +49,7 @@ const Home = () => {
         // console.log(userdata)
         setUser(userobject);
     }
-    const signOut = () => {
-        localStorage.removeItem('user');
-        setUser(null);
-    }
+   
     useEffect(() => {
         userState();
     }, []);
@@ -66,25 +59,26 @@ const Home = () => {
             {user !== null ? (
                 <>
                     {/* <Router> */}
-                        <div id="topBar" className="navBar autohide">
-                            <AppBar position="static">
-                                <Toolbar style={{ display: 'flex', paddingLeft: '10px' }}>
-                                    <Typography variant="h7" style={{ flex: 1, overflow: 'hidden' }}>{user}</Typography>
-                                    <Button color="inherit" onClick={() => signOut()} style={{ marginRight: '-10px' }}>Logout</Button>
-                                </Toolbar>
-                            </AppBar>
-                        </div>
+                    <div id="topBar" className="navBar autohide">
+                        <AppBar position="static">
+                            <Toolbar style={{ display: 'flex', paddingLeft: '10px' }}>
+                                <Link to="/teacher/"><ArrowBackIcon style={{ color: '#FFF' }} /></Link>
+                                <Typography variant="h7" style={{ flex: 1, overflow: 'hidden', textAlign: 'center' }}>{user}</Typography>
+                                {/* <Button color="inherit" onClick={() => signOut()} style={{ marginRight: '-10px' }}>Logout</Button> */}
+                            </Toolbar>
+                        </AppBar>
+                    </div>
 
 
 
-                        <div id="main" style={{ padding: "8px" , width:'100%', marginTop:'60px', paddingBottom:'60px' }}>
-                            {/* <Switch>
+                    <div id="main" style={{ padding: "8px", width: '100%', marginTop: '60px', paddingBottom: '60px' }}>
+                        {/* <Switch>
                                 <Route exact path={url}> */}
-                                    <People />
-                                {/* </Route>
+                        <People />
+                        {/* </Route>
                             </Switch> */}
 
-                        </div>
+                    </div>
 
 
                     {/* </Router> */}

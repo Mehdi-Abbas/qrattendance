@@ -2,12 +2,8 @@ import { useState } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import Checkbox from '@mui/material/Checkbox';
-// import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -34,10 +30,7 @@ import { LoadingButton } from '@mui/lab';
 const theme = createTheme();
 
 const TeacherSignup = () => {
-    const [name, setName] = useState("")
-    // const [id, setId] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+   
     const [isRegestered, setRegester] = useState(false)
     const [loading, setLoad] = useState(false)
 
@@ -46,10 +39,7 @@ const TeacherSignup = () => {
         setTimeout(() => { setLoad(false) }, 10000);
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        setName(data.get('name').toUpperCase())
-        // setId(data.get('id'))
-        setEmail(data.get('email').toUpperCase())
-        setPassword(data.get('password'))
+        
 
         let em = data.get('email').toUpperCase()
         let pass = data.get('password')
@@ -66,10 +56,14 @@ const TeacherSignup = () => {
         // Create user with email and pass.
         fire.auth().createUserWithEmailAndPassword(em, pass)
             .then(
-                () => {
+                (res) => {
                     fire.database().ref('teacher').push({
                         email: em,
-                        name: nm
+                        name: nm,
+                        auth_id:res.user.uid
+                    })
+                    .then((docRef) => {
+                        localStorage.setItem('teacher_id',docRef.path.pieces_[1])
                     });
                     setRegester(true)
                 }
@@ -79,7 +73,7 @@ const TeacherSignup = () => {
                 // Handle Errors here.
                 var errorCode = error.code;
                 var errorMessage = error.message;
-                if (errorCode == 'auth/weak-password') {
+                if (errorCode === 'auth/weak-password') {
                     alert('The password is too weak.');
                 } else {
                     alert(errorMessage);
@@ -94,11 +88,11 @@ const TeacherSignup = () => {
     };
 
     return (<>
-        {isRegestered ? <Redirect to="/teacher" /> : <>
+        {isRegestered ? <Redirect to="/teacher/" /> : <>
             <ThemeProvider theme={theme}>
                 <Container component="main" maxWidth="xs">
                     <br />
-                    <Link to="/teacher"><ArrowBackIcon /></Link>
+                    <Link to="/teacher/"><ArrowBackIcon /></Link>
                     <CssBaseline />
                     <Box
                         sx={{

@@ -5,13 +5,14 @@ import {
   Route,
   useRouteMatch
 } from "react-router-dom";
-// import UseWindowDimensions from '../components/Screensize';
-// import Welcome from './screens/Welcome';
-// import TeacherLogin from './screens/TeacherLogin';
 import StudentLogin from './StudentLogin';
 import StudentSignup from './StudentSignup';
 import StudentHome from './StudentHome'
 import ForgetPassword from './ForgetPassword'
+import ClassroomListStudent from "./ClassroomListStudent";
+import ClassroomFormStudent from './ClassroomFormStudent'
+import StudentAttendance from './StudentAttendance';
+
 export default function Student() {
 //   const { height } = UseWindowDimensions();
   let { path } = useRouteMatch();
@@ -20,7 +21,16 @@ export default function Student() {
       <Router>
         <Switch>
           <Route exact path={path}>
-          <StudentHome/>
+          <ClassroomListStudent/>
+          </Route>
+          <Route path={`${path}/ClassroomFormStudent`}>
+            <ClassroomFormStudent />
+          </Route>
+          <Route path={`${path}/home`}>
+            <StudentHome />
+          </Route>
+          <Route path={`${path}/attendance`}>
+            <StudentAttendance />
           </Route>
           <Route path={`${path}/signup`}>
             <StudentSignup />

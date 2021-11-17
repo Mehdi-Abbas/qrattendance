@@ -1,30 +1,26 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import StudentLogin from './StudentLogin';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Link, Redirect } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux';
-import { OnDelete } from '../Redux/Action/Action';
-import { Container, Card, CardContent, Grid, TextField, Button } from '@mui/material';
-import QRCode from 'qrcode';
+import { Link } from 'react-router-dom'
+import { Button } from '@mui/material';
 import QrReader from 'react-qr-reader';
-import { makeStyles } from '@mui/styles'
 import UseWindowDimensions from '../components/Screensize';
-import { height } from "@mui/system";
 import Avatar from '@mui/material/Avatar';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import fire from '../helpers/db';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import Tabs from '../components/StudentTab'
 
 const Home = () => {
-    const dataValue = useSelector(state => state.functions.data);
     const [user, setUser] = useState('');
-    const [text, setText] = useState('');
     const [isScanning, setScanning] = useState(false)
-    const [scanResultWebCam, setScanResultWebCam] = useState('');
     const [isMarked, setMarked] = useState(false)
-    const classes = useStyles();
-    const qrRef = useRef(null);
-    const dispatch = useDispatch();
+    const [isPresent, setPresent] = useState(false)
+
+  
     const { height, width } = UseWindowDimensions();
     const userState = () => {
         const userdata = localStorage.getItem('user');
@@ -53,32 +49,84 @@ const Home = () => {
     }
     const handleScanWebCam = (result) => {
         if (result) {
-            setScanResultWebCam(result);
+            fire.database().ref('attendance/' + result).once('value').then((data) => {
+                let students = data.val().student
+                let active = data.val().active
+                console.log(active)
+                if (active) {
+
+                    for(let index in students){
+                        if(students[index].key===localStorage.getItem("student_id")){
+                            fire.database().ref('attendance/' + result+'/student/'+index).update({
+                                status:'present',
+                                timeStamp: new Date().toDateString() +", "+ new Date().toLocaleTimeString(),
+                            })
+                        }
+                    }
+                    // students.push(localStorage.getItem("student_id"))
+                    // fire.database().ref('attendance/' + result).update({
+                    //     student: students,
+
+                    // });
+                    setPresent(true)
+                    fire.database().ref('student/' + localStorage.getItem('student_id')).once('value').then(() => {
+                        let attendance = data.val().attendance
+                        if (attendance === undefined) {
+                            let attendancelist = [result]
+                            fire.database().ref('student/' + localStorage.getItem('student_id')).update({
+                                attendance: attendancelist,
+
+                            });
+
+                        } else {
+                            attendance.push(result)
+                            fire.database().ref('student/' + localStorage.getItem('student_id')).update({
+                                attendance: attendance,
+
+                            })
+
+                        }
+                    })
+
+                }
+
+            })
+            // fire.database().ref('student/' + localStorage.getItem("student_id")).once('value').then((data) => {
+            //     let attend = data.val().attendance
+            //     if (attend === null) {
+            //         let attlist = [result]
+            //         fire.database().ref('student/' + localStorage.getItem("student_id")).update({
+            //             attendance: attlist,
+            //         })
+            //     } else {
+            //         attend.push(result)
+            //         fire.database().ref('student/' + localStorage.getItem("student_id")).update({
+            //             attendance: attend,
+            //         })
+            //     }
+            // })
+
+            // setScanResultWebCam(result);
             setMarked(true)
             setScanning(false)
         }
     }
-    const OnDelete_ = () => {
-        dispatch(OnDelete())
-    }
-    const signOut = () => {
-        localStorage.removeItem('user');
-        setUser(null);
-    }
+   
     useEffect(() => {
         userState();
     }, []);
     return (
         <>
-            {user !== null ? (
+            {user !== null && localStorage.getItem("role") === "student" ? (
                 <>
                     <AppBar position="static">
                         <Toolbar style={{ display: 'flex', paddingLeft: '10px' }}>
-                            <Typography variant="h7" style={{ flex: 1, overflow: 'hidden' }}>{user}</Typography>
-                            <Button color="inherit" onClick={() => signOut()} style={{ marginRight: '-10px' }}>Logout</Button>
+                            <Link to="/student/"><ArrowBackIcon style={{ color: '#FFF' }} /></Link>
+                            <Typography variant="h7" style={{ flex: 1, overflow: 'hidden', textAlign: 'center' }}>{user}</Typography>
+                            {/* <Button color="inherit" onClick={() => signOut()} style={{ marginRight: '-10px' }}>Logout</Button> */}
                         </Toolbar>
                     </AppBar>
-                    <div style={{ display: 'flex',flexDirection:'column', justifyContent: 'center', alignItems: 'center', height: height }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: height }}>
                         {!isMarked ? <>
                             {!isScanning ? <>
                                 <Button
@@ -100,14 +148,19 @@ const Home = () => {
                                 />
                             </>}
                         </> : <>
-                            <Avatar sx={{ m: 1, bgcolor: 'success.main', height:'200px', width:'200px' }}>
-                                <CheckCircleOutlineIcon  
+                            <Avatar sx={isPresent ? { m: 1, bgcolor: 'success.main', height: '200px', width: '200px' } : { m: 1, bgcolor: 'error.main', height: '200px', width: '200px' }}>
+                                {isPresent ? <CheckCircleOutlineIcon
                                     style={{ fontSize: 200 }}
-                                />
+                                /> :
+                                    <ErrorOutlineIcon
+                                        style={{ fontSize: 200 }}
+                                    />
+                                }
+
                             </Avatar>
-                            <br/>
-                            <Typography component="h1" variant="h5" style={{color:'#427d33'}}>
-                                Attendance marked
+                            <br />
+                            <Typography component="h1" variant="h5" style={isPresent ? { color: '#427d33' } : { color: '#d44033' }}>
+                                {isPresent ? 'Attendance marked' : 'Attendance not marked'}
                             </Typography>
                             <Button
                                 color='primary'
@@ -115,6 +168,7 @@ const Home = () => {
                                 sx={{ mt: 3, mb: 2 }}
                                 onClick={() => {
                                     setMarked(false)
+                                    setPresent(false)
                                 }}
                             >OK</Button>
                         </>}
@@ -140,6 +194,7 @@ const Home = () => {
 
 
                     </div>
+                    <Tabs cat='tab1' />
                 </>
             ) : (
                 <StudentLogin signin={(user) => setUser(user)} />
@@ -148,24 +203,5 @@ const Home = () => {
     )
 }
 
-const useStyles = makeStyles((theme) => ({
-    conatiner: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        // height: height
-    },
-    title: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#3f51b5',
-        color: '#fff',
-        padding: 20
-    },
-    btn: {
-        marginTop: 10,
-        marginBottom: 20
-    }
-}));
+
 export default Home

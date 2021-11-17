@@ -1,9 +1,8 @@
 classroom{
     name,
-    subject,
-    room,
     section,
-    students,
+    student[],
+    code,
     teacher
 
 }
@@ -14,11 +13,12 @@ attendence{
 student{
     student id,
     student name,
-    email
+    email,
+    classroom[]
 
 }
 teacher{
     name,
     email,
-   classroom
+    classroom[]
 }

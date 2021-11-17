@@ -7,7 +7,7 @@ function handleClick(name){
     // console.log("clicked")
     const links= document.getElementsByClassName("link")
     // console.log(typeof links[i])
-    for(let i=0; i<3; i++){
+    for(let i=0; i<2; i++){
         if(links[i].classList.contains("not-active") && links[i].name===name){
             links[i].classList.replace("not-active","active")
         }
@@ -25,21 +25,15 @@ export default function Tabs(props) {
         <div className="tabBar">
             <ul>
                 <li>
-                    <Link to="/teacher/Home" name="stream" className={`link ${props.cat==='tab1'?'active':'not-active'}`} onClick={()=>handleClick('stream')}>
+                    <Link to="/student/Home" name="stream" className={`link ${props.cat==='tab1'?'active':'not-active'}`} onClick={()=>handleClick('stream')}>
                         <FontAwesome className='fa fa-qrcode' name='stream' />
-                        QR Code
+                        Scan Code
                     </Link>
                 </li>
                 <li>
-                    <Link to="/teacher/classwork" name="classwork" className={`link ${props.cat==='tab2'?'active':'not-active'}`} onClick={()=>handleClick('classwork')}>
+                    <Link to="/student/attendance" name="classwork" className={`link ${props.cat==='tab2'?'active':'not-active'}`} onClick={()=>handleClick('classwork')}>
                         <FontAwesome className='fa fa-list-alt' name='classwork' />
                         Attendances
-                    </Link>
-                </li>
-                <li>
-                    <Link to="/teacher/people" name="people" className={`link ${props.cat==='tab3'?'active':'not-active'}`} onClick={()=>handleClick('people')} >
-                        <FontAwesome className='fa fa-home' name='people' />
-                        My Class
                     </Link>
                 </li>
             </ul>

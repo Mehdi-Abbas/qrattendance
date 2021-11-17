@@ -2,14 +2,9 @@ import { useState } from 'react'
 import { Link, Redirect, useRouteMatch } from 'react-router-dom'
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-// import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
+
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -22,12 +17,11 @@ import { LoadingButton } from '@mui/lab';
 const theme = createTheme();
 
 const TeacherLogin = (props) => {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+   
     const [isLoggedin, setLoggedin] = useState(false)
     const [loading, setLoad] = useState(false)
-    // const [finished, setFinish] = useState(false)
-    // const setLoading = !finished && loading;
+    var isValidUser = ''
+   
     let { path } = useRouteMatch();
 
     const handleSubmit = (event) => {
@@ -38,8 +32,7 @@ const TeacherLogin = (props) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         // eslint-disable-next-line no-console
-        setEmail(data.get('email').toUpperCase())
-        setPassword(data.get('password'))
+       
 
         let em = data.get('email')
         let pass = data.get('password')
@@ -60,10 +53,40 @@ const TeacherLogin = (props) => {
                 const user = result.user;
                 const data = user.email
 
-                localStorage.setItem('user', data);
-                props.signin(data);
-                console.log("logged in")
-                setLoggedin(true)
+
+
+                fire.database().ref('teacher').once('value').then((snapshot) => {
+                    const teachers = snapshot.val();
+                    for (let id in teachers) {
+                        if (teachers[id].auth_id === result.user.uid) {
+                            localStorage.setItem("teacher_id", id)
+                            localStorage.setItem("role", 'teacher')
+                            localStorage.setItem('user', data);
+                            isValidUser = true
+                            props.signin(data);
+                            console.log("logged in")
+
+                        };
+                    }
+                    console.log(isValidUser)
+                    if (isValidUser !== true) {
+                        isValidUser = false
+                        setLoggedin(false)
+                        alert("You are registered as a student!")
+
+                    }
+                });
+
+
+
+                if (isValidUser === true) {
+                    console.log(isValidUser)
+                    // setLoggedin(true)
+                } else {
+                    console.log(isValidUser)
+                    setLoggedin(false)
+                }
+
             })
             .catch(function (error) {
                 // Handle Errors here.
@@ -85,7 +108,7 @@ const TeacherLogin = (props) => {
 
     return (
         <>
-            {isLoggedin ? <Redirect to={`${path}/home`} /> : <>
+            {isLoggedin ? <Redirect to={`${path}/`} /> : <>
                 <ThemeProvider theme={theme}>
                     <Container component="main" maxWidth="xs">
                         <br />
@@ -126,20 +149,7 @@ const TeacherLogin = (props) => {
                                     id="password"
                                     autoComplete="current-password"
                                 />
-                                {/* <FormControlLabel
-                                    control={<Checkbox value="remember" color="primary" />}
-                                    label="Remember me"
-                                /> */}
-                                {/* <Button
-                                    type="submit"
-                                    disabled={loading}
-                                    fullWidth
-                                    variant="contained"
-                                    sx={{ mt: 3, mb: 2 }}
-                                    // onClick={()=>{setLoad(true)}}
-                                >
-                                    {loading?'Please wait...':'SIGN IN'}
-                                </Button> */}
+                                
                                 <LoadingButton
                                     disable={loading}
                                     type="submit"
@@ -147,23 +157,12 @@ const TeacherLogin = (props) => {
                                     variant="contained"
                                     sx={{ mt: 3, mb: 2 }}
                                     loading={loading}
-                                    
+
                                 >
                                     Sign In
                                 </LoadingButton>
 
-                                {/* <Grid container>
-                            <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link to="teacher/signup">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid> */}
+                                
                             </Box>
                             <br />
                             <Link to={`/teacher/signup`}>

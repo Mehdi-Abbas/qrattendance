@@ -1,14 +1,10 @@
 import { useState } from 'react'
-import { Link, Redirect, useRouteMatch} from 'react-router-dom'
+import { Link, Redirect, useRouteMatch } from 'react-router-dom'
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-// import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
+
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -17,16 +13,14 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import fire from '../helpers/db';
 import { useDispatch, useSelector } from 'react-redux';
-import {OnSubmit} from '../Redux/Action/Action';
+import { OnSubmit } from '../Redux/Action/Action';
 import { LoadingButton } from '@mui/lab';
-
 const theme = createTheme();
 
 const StudentLogin = (props) => {
     const dataValue = useSelector(state => state.functions.data);
     let { path } = useRouteMatch();
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+   
     const [isLoggedin, setLoggedin] = useState(false)
     const [loading, setLoad] = useState(false)
 
@@ -43,10 +37,9 @@ const StudentLogin = (props) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         // eslint-disable-next-line no-console
-        setEmail(data.get('email').toUpperCase())
-        setPassword(data.get('password'))
+       
 
-        
+
 
         let em = data.get('email')
         let pass = data.get('password')
@@ -64,7 +57,19 @@ const StudentLogin = (props) => {
         // Create user with email and pass.
         fire.auth().signInWithEmailAndPassword(em, pass)
             .then((result) => {
-                console.dir(result)
+                localStorage.setItem("role",'student')
+
+                fire.database().ref('student').once('value').then ((snapshot) => {
+                    const students = snapshot.val();
+                    for (let id in students) {
+                        if(students[id].auth_id===result.user.uid){
+                            localStorage.setItem("student_id",id)
+                            localStorage.setItem("role", 'student')
+                            localStorage.setItem('user', data);
+                        };
+                    }
+                });
+
                 // const token = result.credential.accessToken;
                 const user = result.user;
                 const data = user.email
@@ -96,7 +101,7 @@ const StudentLogin = (props) => {
 
     return (
         <>
-            {isLoggedin ? <Redirect to={`${path}/home`} /> : <>
+            {!isLoggedin ? <>
                 <ThemeProvider theme={theme}>
                     <Container component="main" maxWidth="xs">
                         <br />
@@ -150,7 +155,7 @@ const StudentLogin = (props) => {
                                     variant="contained"
                                     sx={{ mt: 3, mb: 2 }}
                                     loading={loading}
-                                    
+
                                 >
                                     Sign In
                                 </LoadingButton>
@@ -165,7 +170,7 @@ const StudentLogin = (props) => {
                                     </Grid>
                                 </Grid> */}
                             </Box>
-                            <br/>
+                            <br />
                             <Link to={`/student/signup`}>
                                 {"Don't have an account? Sign Up"}
                             </Link>
@@ -177,7 +182,7 @@ const StudentLogin = (props) => {
                         {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
                     </Container>
                 </ThemeProvider>
-            </>}
+            </> : <Redirect to={`${path}`} />}
         </>
     );
 }

@@ -2,56 +2,36 @@ import { useState } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import Checkbox from '@mui/material/Checkbox';
-// import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import firebase from 'firebase';
 import fire from '../helpers/db';
 import { LoadingButton } from '@mui/lab';
 
-// function Copyright(props) {
-//     return (
-//         <Typography variant="body2" color="text.secondary" align="center" {...props}>
-//             {'Copyright © '}
-//             <Link color="inherit" href="https://mui.com/">
-//                 Your Website
-//             </Link>{' '}
-//             {new Date().getFullYear()}
-//             {'.'}
-//         </Typography>
-//     );
-// }
 
 const theme = createTheme();
 
 const StudentSignup = () => {
-    const [name, setName] = useState("")
-    const [id, setId] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+  
+   
+    
     const [isRegestered, setRegester] = useState(false)
     const [loading, setLoad] = useState(false)
+    
 
     const handleSubmit = (event) => {
         setLoad(true)
         setTimeout(() => { setLoad(false) }, 10000);
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        setName(data.get('name').toUpperCase())
-
-        setEmail(data.get('email').toUpperCase())
-        setId(email.substring(0, 4) + '-' + email.substring(4, 8) + '-' + email.substring(8, 12))
-        setPassword(data.get('password'))
+       
+       
+        
         // console.log(email)
         let em = data.get('email').toUpperCase()
         let pass = data.get('password')
@@ -65,15 +45,20 @@ const StudentSignup = () => {
             alert('Please enter a password.');
             return;
         }
-        // Create user with email and pass.
+       
         fire.auth().createUserWithEmailAndPassword(em, pass)
             .then(
-                () => {
+                (res) => {
+                    // console.log(res)
                     fire.database().ref('student').push({
                         email: em,
                         student_id: id__,
-                        name: nm
-                    });
+                        name: nm,
+                        auth_id:res.user.uid
+                    })
+                    .then((docRef) => {
+                        localStorage.setItem('student_id',docRef.path.pieces_[1])
+                    })
                     setRegester(true)
                 }
 
@@ -82,7 +67,7 @@ const StudentSignup = () => {
                 // Handle Errors here.
                 var errorCode = error.code;
                 var errorMessage = error.message;
-                if (errorCode == 'auth/weak-password') {
+                if (errorCode === 'auth/weak-password') {
                     alert('The password is too weak.');
                 } else {
                     alert(errorMessage);
@@ -99,11 +84,11 @@ const StudentSignup = () => {
 
     return (
         <>
-            {isRegestered ? <Redirect to="/student/signin" /> : <>
+            {isRegestered ? <Redirect to="/student/" /> : <>
                 <ThemeProvider theme={theme}>
                     <Container component="main" maxWidth="xs">
                         <br />
-                        <Link to="/student/signin"><ArrowBackIcon /></Link>
+                        <Link to="/student/"><ArrowBackIcon /></Link>
                         <CssBaseline />
                         <Box
                             sx={{
@@ -114,7 +99,7 @@ const StudentSignup = () => {
                             }}
                         >
                             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                                <LockOutlinedIcon />
+                                {/* <LockOutlinedIcon /> */}
                             </Avatar>
                             <Typography component="h1" variant="h5">
                                 Sign up as student
